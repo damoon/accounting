@@ -1,0 +1,6 @@
+data
+.passwd
+.group
+.image
+.cache
+.bash_history
