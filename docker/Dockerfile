@@ -6,4 +6,5 @@ RUN apt update -yq \
 
 RUN apt update -yq \
     && apt install bash-completion -yq \
-    && apt purge -y --auto-remove
+    && apt purge -y --auto-remove \
+    && echo "source /etc/profile.d/bash_completion.sh" >> /etc/bash.bashrc
