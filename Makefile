@@ -1,15 +1,15 @@
 
-cli: .passwd .group .image
+cli: .cli/passwd .cli/group .cli/image
 	@docker run -ti --rm \
-		-v $(PWD)/.passwd:/etc/passwd \
-		-v $(PWD)/.group:/etc/group \
+		-v $(PWD)/.cli/passwd:/etc/passwd \
+		-v $(PWD)/.cli/group:/etc/group \
 		--user $(shell id -u):$(shell id -g) \
 		-h dev-container \
 		--network host \
 		-v $(PWD):$(PWD) \
 		-w $(PWD) \
 		--entrypoint "bash" \
-		$(shell cat .image)
+		$(shell cat .cli/image)
 
 pdf-to-txt:
 	./bin/pdf-to-txt/run.sh
@@ -17,15 +17,15 @@ pdf-to-txt:
 debug:
 	go run ./bin/debug
 
-.image: $(shell find ./docker -type f)
+.cli/image: $(shell find ./docker -type f)
 	docker build -f docker/Dockerfile ./docker
-	@docker build -f docker/Dockerfile ./docker -q > .image
+	@docker build -f docker/Dockerfile ./docker -q > .cli/image
 
-.passwd:
-	echo "$(shell whoami):x:$(shell id -u):$(shell id -g):,,,:$(shell pwd):/bin/bash" > .passwd
+.cli/passwd:
+	echo "$(shell whoami):x:$(shell id -u):$(shell id -g):,,,:$(shell pwd):/bin/bash" > .cli/passwd
 
-.group:
-	echo "$(shell id -g -n):x:$(shell id -g):" > .group
+.cli/group:
+	echo "$(shell id -g -n):x:$(shell id -g):" > .cli/group
 
 clean:
-	rm .image .passwd .group
+	rm -f .cli/image .cli/passwd .cli/group

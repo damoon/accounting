@@ -1,6 +1,4 @@
 data
-.passwd
-.group
-.image
+.cli
 .cache
 .bash_history
