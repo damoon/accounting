@@ -25,8 +25,9 @@ func run(force bool) error {
 	}
 
 	for _, f := range files {
+		ext := filepath.Ext(f)
 		base := filepath.Base(f)
-		base, _ = strings.CutSuffix(base, ".pdf")
+		base, _ = strings.CutSuffix(base, ext)
 		base = fmt.Sprintf("%s.txt", base)
 		dir := filepath.Dir(f)
 		txtPath := path.Join(dir, base)
@@ -50,7 +51,8 @@ func getPdfs(rootpath string) ([]string, error) {
 			return err
 		}
 
-		if filepath.Ext(path) == ".pdf" {
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext == ".pdf" {
 			list = append(list, path)
 		}
 
