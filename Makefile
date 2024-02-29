@@ -11,9 +11,6 @@ cli: .cli/passwd .cli/group .cli/image
 		--entrypoint "bash" \
 		$(shell cat .cli/image)
 
-pdf-to-txt:
-	./bin/pdf-to-txt/run.sh
-
 debug:
 	go run ./bin/debug
 
