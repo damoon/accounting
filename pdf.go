@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/golang/snappy"
 	"github.com/segmentio/fasthash/fnv1a"
 )
 
@@ -62,21 +63,31 @@ func (p *Pdf) cached(kind string) (string, error) {
 		}
 
 		b := []byte(txt)
+
+		b = snappy.Encode(nil, b)
+
 		err = os.WriteFile(cachePath, b, os.ModePerm)
 		if err != nil {
 			return "", err
 		}
+
+		return txt, nil
 	} else {
 		// some error
 		return "", err
 	}
 
-	txt, err := os.ReadFile(cachePath)
+	b, err := os.ReadFile(cachePath)
 	if err != nil {
 		return "", err
 	}
 
-	return string(txt), nil
+	b, err = snappy.Decode(nil, b)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
 }
 
 func fnv1asum(filePath string) (string, error) {
