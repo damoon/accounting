@@ -2,3 +2,4 @@ data
 .cli
 .cache
 .bash_history
+vendor/

@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/segmentio/fasthash/fnv1a"
@@ -44,7 +43,7 @@ func (p *Pdf) cached(kind string) (string, error) {
 		kind_ = "default"
 	}
 
-	cacheDir := filepath.Join(".cache", "pdftotext")
+	cacheDir := filepath.Join(".cache", "pdftotext", h[0:2])
 
 	err = os.MkdirAll(cacheDir, os.ModePerm)
 	if err != nil {
@@ -87,7 +86,7 @@ func fnv1asum(filePath string) (string, error) {
 	}
 
 	h := fnv1a.HashBytes64(b)
-	s := strconv.FormatUint(h, 10)
+	s := fmt.Sprintf("%016x", h)
 	return s, nil
 }
 
