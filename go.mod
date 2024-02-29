@@ -2,7 +2,10 @@ module github.com/damoon/accounting
 
 go 1.22.0
 
-require github.com/jedib0t/go-pretty/v6 v6.5.4
+require (
+	github.com/jedib0t/go-pretty/v6 v6.5.4
+	github.com/segmentio/fasthash v1.0.3
+)
 
 require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect

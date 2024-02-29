@@ -20,22 +20,15 @@ func main() {
 }
 
 func run() error {
-	txts, err := accounting.ListTxts("data")
+	pdfs, err := accounting.Pdfs("data")
 	if err != nil {
-		return fmt.Errorf("listing txt files: %v", err)
+		return fmt.Errorf("listing files: %v", err)
 	}
 
 	bhw := bhw.NewBhw()
 
-	for _, txt := range txts {
-		b, err := os.ReadFile(txt)
-		if err != nil {
-			return err
-		}
-
-		content := string(b)
-
-		err = bhw.LoadFrom(content)
+	for _, pdf := range pdfs {
+		err = bhw.LoadFrom(pdf)
 		if err != nil {
 			return err
 		}

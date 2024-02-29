@@ -22,7 +22,12 @@ func NewBhw() BHW {
 	}
 }
 
-func (bhw *BHW) LoadFrom(content string) error {
+func (bhw *BHW) LoadFrom(p accounting.Pdf) error {
+	content, err := p.WithLayout()
+	if err != nil {
+		return err
+	}
+
 	if strings.Contains(content, "Wohn Plus") || strings.Contains(content, "BHW WohnBausparen Plus") {
 		return bhw.load(content)
 	}

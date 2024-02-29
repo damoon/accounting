@@ -1,8 +1,6 @@
 package accounting
 
 import (
-	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -25,26 +23,4 @@ type Transfer struct {
 type Account struct {
 	IBAN string
 	Name string
-}
-
-func ListTxts(rootpath string) ([]string, error) {
-	list := []string{}
-
-	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if filepath.Ext(path) == ".txt" {
-			list = append(list, path)
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return []string{}, err
-	}
-
-	return list, nil
 }
