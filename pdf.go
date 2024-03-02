@@ -6,35 +6,34 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/golang/snappy"
-	"github.com/segmentio/fasthash/fnv1a"
 )
 
 type Pdf struct {
 	path string
 }
 
-func (p *Pdf) Text() (string, error) {
+func (p Pdf) String() string {
+	return p.path
+}
+
+func (p Pdf) Text() (string, error) {
 	return p.cached("")
 }
 
-func (p *Pdf) Raw() (string, error) {
+func (p Pdf) Raw() (string, error) {
 	return p.cached("-raw")
 }
 
-func (p *Pdf) WithLayout() (string, error) {
+func (p Pdf) WithLayout() (string, error) {
 	return p.cached("-layout")
 }
 
-func (p *Pdf) cached(kind string) (string, error) {
-	// h, err := md5sum(p.path)
-	h, err := fnv1asum(p.path)
+func (p Pdf) cached(kind string) (string, error) {
+	h, err := p.hash()
 	if err != nil {
 		return "", err
 	}
@@ -64,8 +63,6 @@ func (p *Pdf) cached(kind string) (string, error) {
 
 		b := []byte(txt)
 
-		b = snappy.Encode(nil, b)
-
 		err = os.WriteFile(cachePath, b, os.ModePerm)
 		if err != nil {
 			return "", err
@@ -82,40 +79,21 @@ func (p *Pdf) cached(kind string) (string, error) {
 		return "", err
 	}
 
-	b, err = snappy.Decode(nil, b)
-	if err != nil {
-		return "", err
-	}
-
 	return string(b), nil
 }
 
-func fnv1asum(filePath string) (string, error) {
-	b, err := os.ReadFile(filePath)
-	if err != nil {
-		return "", err
-	}
-
-	h := fnv1a.HashBytes64(b)
-	s := fmt.Sprintf("%016x", h)
-	return s, nil
-}
-
-func md5sum(filePath string) (string, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
+func (p Pdf) hash() (string, error) {
 	hash := md5.New()
-	if _, err := io.Copy(hash, file); err != nil {
+
+	_, err := hash.Write([]byte(p.path))
+	if err != nil {
 		return "", err
 	}
+
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-func (p *Pdf) pdftotext(kind string) (string, error) {
+func (p Pdf) pdftotext(kind string) (string, error) {
 	cmd := exec.Command("pdftotext", kind, p.path, "/dev/stdout")
 	stderr := bytes.Buffer{}
 	stdout := bytes.Buffer{}

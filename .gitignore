@@ -3,3 +3,6 @@ data
 .cache
 .bash_history
 vendor/
+cpu.pprof
+mem.pprof
+trace.out

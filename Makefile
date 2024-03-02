@@ -14,6 +14,18 @@ cli: .cli/passwd .cli/group .cli/image
 debug:
 	go run ./bin/debug
 
+profile-cpu:
+	PROFILE=cpu make debug
+	go tool pprof -http=:8080 cpu.pprof
+
+profile-mem:
+	PROFILE=mem make debug
+	go tool pprof -http=:8080 mem.pprof
+
+profile-trace:
+	PROFILE=trace make debug
+	go tool trace trace.out
+
 .cli/image: $(shell find ./docker -type f)
 	docker build -f docker/Dockerfile ./docker
 	@docker build -f docker/Dockerfile ./docker -q > .cli/image

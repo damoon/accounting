@@ -10,6 +10,7 @@ import (
 	"github.com/damoon/accounting/bhw"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
+	"github.com/pkg/profile"
 )
 
 func main() {
@@ -20,6 +21,15 @@ func main() {
 }
 
 func run() error {
+	switch os.Getenv("PROFILE") {
+	case "cpu":
+		defer profile.Start(profile.CPUProfile, profile.ProfilePath(".")).Stop()
+	case "mem":
+		defer profile.Start(profile.MemProfile, profile.ProfilePath(".")).Stop()
+	case "trace":
+		defer profile.Start(profile.TraceProfile, profile.ProfilePath(".")).Stop()
+	}
+
 	pdfs, err := accounting.Pdfs("data")
 	if err != nil {
 		return fmt.Errorf("listing files: %v", err)
@@ -28,25 +38,13 @@ func run() error {
 	bhw := bhw.NewBhw()
 
 	for _, pdf := range pdfs {
+		log.Printf("processing %v", pdf)
+
 		err = bhw.LoadFrom(pdf)
 		if err != nil {
 			return err
 		}
 	}
-
-	/*
-		tbl := table.New("ISIN", "Name")
-		for _, account := range bhw.Accounts() {
-			tbl.AddRow(account.IBAN, account.Name)
-		}
-		tbl.Print()
-
-		tbl = table.New("Date", "Description", "Amount") //, "Source", "Target")
-		for _, transfer := range bhw.Transfers() {
-			tbl.AddRow(transfer.Date, transfer.Description, transfer.Amount) //, transfer.Source, transfer.Target)
-		}
-		tbl.Print()
-	*/
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
