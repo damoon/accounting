@@ -49,9 +49,9 @@ func run() error {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.SortBy([]table.SortBy{
-		{Name: "ISIN", Mode: table.Asc},
+		{Name: "IBAN", Mode: table.Asc},
 	})
-	t.AppendHeader(table.Row{"ISIN", "Name"})
+	t.AppendHeader(table.Row{"IBAN", "Name"})
 	for _, account := range bhw.Accounts() {
 		t.AppendRow(table.Row{account.IBAN, account.Name})
 	}
@@ -86,9 +86,13 @@ func run() error {
 			Transformer: amountTransformer,
 		},
 	})
-	t.AppendHeader(table.Row{"Date", "DateRaw", "Description", "Amount"})
-	for _, transfer := range bhw.Transfers() {
-		t.AppendRow(table.Row{transfer.Date, transfer.Date, transfer.Description, transfer.Amount})
+	t.AppendHeader(table.Row{"IBAN", "Date", "DateRaw", "Description", "Amount"})
+
+	accounts := bhw.Accounts()
+	for _, account := range accounts {
+		for _, transfer := range account.Transfers {
+			t.AppendRow(table.Row{account.IBAN, transfer.Date, transfer.Date, transfer.Description, transfer.Amount})
+		}
 	}
 	t.Render()
 

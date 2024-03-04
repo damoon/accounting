@@ -7,7 +7,7 @@ import (
 type Order struct {
 	Date   time.Time
 	Symbol string
-	Amount int
+	Price  int
 	Fees   int
 	Pieces float64
 }
@@ -21,6 +21,7 @@ type Transfer struct {
 }
 
 type Account struct {
-	IBAN string
-	Name string
+	IBAN      string
+	Name      string
+	Transfers []Transfer
 }

@@ -11,14 +11,12 @@ import (
 )
 
 type BHW struct {
-	accounts  map[string]string
-	transfers []accounting.Transfer
+	accounts map[string]accounting.Account
 }
 
 func NewBhw() BHW {
 	return BHW{
-		accounts:  map[string]string{},
-		transfers: []accounting.Transfer{},
+		accounts: map[string]accounting.Account{},
 	}
 }
 
@@ -41,6 +39,15 @@ func (bhw *BHW) load(content string) error {
 	iban, err := bhw.loadIban(content)
 	if err != nil {
 		return err
+	}
+
+	_, found := bhw.accounts[iban]
+	if !found {
+		bhw.accounts[iban] = accounting.Account{
+			IBAN:      iban,
+			Name:      fmt.Sprintf("Bausparkonto %s", iban),
+			Transfers: []accounting.Transfer{},
+		}
 	}
 
 	matches := transfersRegex.FindAllStringSubmatch(content, 100)
@@ -75,14 +82,8 @@ func (bhw *BHW) load(content string) error {
 			return fmt.Errorf("parse amount: %v", err)
 		}
 
-		source := ""
-		target := ""
-
 		if !positive {
 			amountCent = -amountCent
-			source = iban
-		} else {
-			target = iban
 		}
 
 		t, err := time.Parse("02.01.06", date)
@@ -91,14 +92,14 @@ func (bhw *BHW) load(content string) error {
 		}
 
 		transfer := accounting.Transfer{
-			Source:      source,
-			Target:      target,
 			Date:        t,
 			Description: description,
 			Amount:      amountCent,
 		}
 
-		bhw.transfers = append(bhw.transfers, transfer)
+		account := bhw.accounts[iban]
+		account.Transfers = append(account.Transfers, transfer)
+		bhw.accounts[iban] = account
 	}
 
 	return nil
@@ -113,22 +114,14 @@ func (bhw *BHW) loadIban(content string) (string, error) {
 	}
 
 	iban := strings.TrimSpace(match[1])
-	bhw.accounts[iban] = fmt.Sprintf("Bausparkonto %s", iban)
 
 	return iban, nil
 }
 
 func (bhw *BHW) Accounts() []accounting.Account {
 	accounts := []accounting.Account{}
-	for iban, name := range bhw.accounts {
-		accounts = append(accounts, accounting.Account{
-			IBAN: iban,
-			Name: name,
-		})
+	for _, account := range bhw.accounts {
+		accounts = append(accounts, account)
 	}
 	return accounts
-}
-
-func (bhw *BHW) Transfers() []accounting.Transfer {
-	return bhw.transfers
 }
