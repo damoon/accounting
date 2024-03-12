@@ -14,13 +14,17 @@ type BHW struct {
 	accounts map[string]accounting.Account
 }
 
+type Document interface {
+	WithLayout() (string, error)
+}
+
 func NewBhw() BHW {
 	return BHW{
 		accounts: map[string]accounting.Account{},
 	}
 }
 
-func (bhw *BHW) LoadFrom(p accounting.Pdf) error {
+func (bhw *BHW) LoadFrom(p Document) error {
 	content, err := p.WithLayout()
 	if err != nil {
 		return err

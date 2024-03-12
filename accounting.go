@@ -14,8 +14,6 @@ type Order struct {
 
 type Transfer struct {
 	Date        time.Time
-	Source      string
-	Target      string
 	Description string
 	Amount      int
 }

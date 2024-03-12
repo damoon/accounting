@@ -12,27 +12,34 @@ import (
 	"strings"
 )
 
-type Pdf struct {
+type Pdf interface {
+	String() string
+	Text() (string, error)
+	Raw() (string, error)
+	WithLayout() (string, error)
+}
+
+type PdFile struct {
 	path string
 }
 
-func (p Pdf) String() string {
+func (p PdFile) String() string {
 	return p.path
 }
 
-func (p Pdf) Text() (string, error) {
+func (p PdFile) Text() (string, error) {
 	return p.cached("")
 }
 
-func (p Pdf) Raw() (string, error) {
+func (p PdFile) Raw() (string, error) {
 	return p.cached("-raw")
 }
 
-func (p Pdf) WithLayout() (string, error) {
+func (p PdFile) WithLayout() (string, error) {
 	return p.cached("-layout")
 }
 
-func (p Pdf) cached(kind string) (string, error) {
+func (p PdFile) cached(kind string) (string, error) {
 	h, err := p.hash()
 	if err != nil {
 		return "", err
@@ -51,6 +58,7 @@ func (p Pdf) cached(kind string) (string, error) {
 	}
 
 	cachePath := filepath.Join(cacheDir, fmt.Sprintf("%s-%s", h, kind_))
+	//	cachePath = fmt.Sprintf("%s-%s", p.path, kind_)
 
 	if _, err := os.Stat(cachePath); err == nil {
 		// exists
@@ -82,7 +90,8 @@ func (p Pdf) cached(kind string) (string, error) {
 	return string(b), nil
 }
 
-func (p Pdf) hash() (string, error) {
+func (p PdFile) hash() (string, error) {
+	//	return p.path, nil
 	hash := md5.New()
 
 	_, err := hash.Write([]byte(p.path))
@@ -93,7 +102,7 @@ func (p Pdf) hash() (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-func (p Pdf) pdftotext(kind string) (string, error) {
+func (p PdFile) pdftotext(kind string) (string, error) {
 	cmd := exec.Command("pdftotext", kind, p.path, "/dev/stdout")
 	stderr := bytes.Buffer{}
 	stdout := bytes.Buffer{}
@@ -118,7 +127,7 @@ func Pdfs(rootpath string) ([]Pdf, error) {
 
 		ext := strings.ToLower(filepath.Ext(path))
 		if ext == ".pdf" {
-			pdf := Pdf{
+			pdf := PdFile{
 				path: path,
 			}
 			list = append(list, pdf)
