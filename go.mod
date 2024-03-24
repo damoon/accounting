@@ -3,7 +3,7 @@ module github.com/damoon/accounting
 go 1.22.1
 
 require (
-	github.com/jedib0t/go-pretty/v6 v6.5.5
+	github.com/jedib0t/go-pretty/v6 v6.5.6
 	github.com/pkg/profile v1.7.0
 )
 
