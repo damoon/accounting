@@ -1,4 +1,4 @@
-FROM golang:1.27.0
+FROM golang:1.27.1
 
 RUN apt update -yq \
     && apt install poppler-utils -yq \
